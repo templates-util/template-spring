@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  db:
+    build: ./postgresql
+    container_name: boot_database
+    ports:
+      - 5432:5432
+  cache:
+    build: ./redis
+    container_name: boot_redis
+    ports:
+      - 6379:6379
+  storage:
+    build: ./s3
+    container_name: boot_s3
+    ports:
+      - 9444:9000

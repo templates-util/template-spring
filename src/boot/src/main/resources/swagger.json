@@ -1,0 +1,307 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "version": "1.0",
+      "title": "Plataforma itexto boot",
+      "description": "API da plataforma itexto Boot"
+    },
+    "basePath": "/api/v1",
+    "host": "localhost:8080",
+    "paths": {
+      "/auth":{
+          "post":{
+              "description":"Realiza a autenticação do usuário",
+              "parameters":[
+                  {
+                      "name":"credenciais",
+                      "in":"body",
+                      "required":true,
+                      "schema":{"$ref":"#/definitions/credenciais"}
+                  }
+              ],
+              "responses":{
+                  "200":{
+                      "description":"Autenticação bem sucedida",
+                      "schema":{"$ref":"#/definitions/autorizacao"}
+                  },
+                  "401":{
+                      "description":"Acesso negado"
+                  }
+              }
+          }
+      },
+      "/profile":{
+          "get":{
+              "description":"Realiza a busca por perfis",
+              "parameters":[
+                  {
+                      "name":"Authorization",
+                      "in":"header",
+                      "type":"string",
+                      "description":"Token JWT",
+                      "required":true
+                  },
+                  {
+                      "name":"name",
+                      "in":"query",
+                      "type":"string",
+                      "required":false,
+                      "description":"Realiza a busca pelo nome do perfil"
+                  },
+                  {
+                      "name":"active",
+                      "in":"query",
+                      "required":false,
+                      "description":"Realiza a busca por perfis ativos ou não",
+                      "type":"boolean"
+                  },
+                  {
+                      "name":"pageSize",
+                      "in":"query",
+                      "required":false,
+                      "description":"Define o número de registros por página",
+                      "type":"number"
+                  },
+                  {
+                      "name":"page",
+                      "in":"query",
+                      "required":false,
+                      "description":"Define a página que será usada na busca",
+                      "type":"number"
+                  }
+              ],
+              "responses":{
+                  "200":{
+                      "description":"Retorna a lista de perfis ordenados pelo nome",
+                      "schema":{
+                          "type":"array",
+                          "items":{"$ref":"#/definitions/profile"}
+                      }
+                  },
+                  "403":{
+                      "description":"Acesso negado. Usuário deve ter a permissão ROLE_PROFILE_LIST"
+                  }
+              }
+          },
+          "post":{
+              "description":"Realiza o cadastro de um novo perfil",
+              "parameters":[
+                  {
+                      "name":"Authorization",
+                      "in":"header",
+                      "description":"Token JWT",
+                      "required":true
+                  },
+                  {
+                      "name":"body",
+                      "in":"body",
+                      "schema":{"$ref":"#/definitions/profileUpdate"},
+                      "required":true
+                  }
+              ],
+              "responses":{
+                  "201":{
+                      "description":"Cadastrado com sucesso",
+                      "schema":{
+                          "$ref":"#/definitions/profile"
+                      }
+                  },
+                  "400":{
+                      "description":"Requisição inválida",
+                      "schema":{
+                          "$ref":"#/definitions/error"
+                      }
+                  },
+                  "403":{
+                      "description":"Acesso negado"
+                  }
+              }
+          }
+      },
+      "/profile/{uuid}":{
+          "get":{
+              "description":"Retorna os detalhes do perfil",
+              "parameters":[
+                {
+                    "name":"Authorization",
+                    "in":"header",
+                    "type":"string",
+                    "description":"Token JWT",
+                    "required":true
+                },
+                {
+                    "name":"uuid",
+                    "in":"path",
+                    "type":"string",
+                    "description":"Código identificador do perfil",
+                    "required":true
+                }
+              ],    
+              "responses":{
+                "200":{
+                    "description":"Retorna os detalhes do perfil",
+                    "schema":{
+                        "$ref":"#/definitions/profile"
+                    }
+                },
+                "403":{
+                    "description":"Acesso negado. Usuário deve ter a permissão ROLE_PROFILE_LIST ou ROLE_ADMIN"
+                },
+                "404":{
+                    "description":"Perfil não encontrado",
+                    "schema":{
+                        "$ref":"#/definitions/error"
+                    }
+                }
+              }
+          },
+          "put":{
+              "description":"Realiza a edição do perfil. Apenas os campos fornecidos serão alterados",
+              "parameters":[
+                {
+                    "name":"Authorization",
+                    "in":"header",
+                    "type":"string",
+                    "description":"Token JWT",
+                    "required":true
+                },
+                {
+                    "name":"uuid",
+                    "in":"path",
+                    "type":"string",
+                    "description":"Código identificador do perfil",
+                    "required":true
+                },
+                {
+                    "name":"body",
+                    "in":"body",
+                    "schema":{"$ref":"#/definitions/profileUpdate"},
+                    "required":true
+                }
+              ],    
+              "responses":{
+                "200":{
+                    "description":"Retorna os detalhes do perfil",
+                    "schema":{
+                        "$ref":"#/definitions/profile"
+                    }
+                },
+                "400":{
+                    "descripton":"Requisição inválida. Alguma regra de validação não foi aprovada",
+                    "schema":{
+                        "$ref":"#/definitions/error"
+                    }
+                },
+                "403":{
+                    "description":"Acesso negado. Usuário deve ter a permissão ROLE_PROFILE_LIST ou ROLE_ADMIN"
+                },
+                "404":{
+                    "description":"Perfil não encontrado",
+                    "schema":{
+                        "$ref":"#/definitions/error"
+                    }
+                }
+              }
+          }
+      },
+      "/roles":{
+          "get":{
+              "description":"Retorna a lista de permissões que existem cadastrada no sistema",
+              "parameters":[
+                  {
+                      "name":"Authorization",
+                      "in":"header",
+                      "type":"string",
+                      "required":true
+                  }
+              ],
+              "responses":{
+                  "200":{
+                      "description":"Retorna a lista de permissões cadastradas no sistema",
+                      "schema":{
+                          "type":"array",
+                          "items":{
+                              "$ref":"#/definitions/role"
+                          }
+                      }
+                  },
+                  "403":{
+                      "description":"Acesso negado. Apenas usuários que possuam a permissão ROLE_ADMIN, ROLE_PROFILE_CREATE ou ROLE_PROFILE_UPDATE podem acessar este endpoint"
+                  }
+              }
+          }
+      }
+    },
+    "definitions": {
+      "usuario":{
+          "type":"object",
+          "properties":{
+              "uuid":{"type":"string", "description":"Identificador do usuario"},
+              "name":{"type":"string", "description":"Nome do usuário"},
+              "email":{"type":"string", "description":"Username do usuário, o seu login"},
+              "active":{"type":"boolean"},
+              "profile":{"$ref":"#/definitions/profile"},
+              "dateCreated":{"type":"string", "description":"Momento de criação do usuário no formato dd/MM/yyyy HH:mm:ss"}
+          }
+      },
+      "error":{
+          "type":"object",
+          "properties":{
+              "code":{"type":"string"},
+              "description":{"type":"string"}
+          }
+      },
+      "profile":{
+          "type":"object",
+          "properties":{
+              "uuid":{"type":"string", "description":"Código de identificação do perfil"},
+              "name":{"type":"string", "description":"Nome do perfil"},
+              "active":{"type":"boolean", "description":"Indica se o perfil está ou não ativo"},
+              "roles":{
+                  "type":"array",
+                  "items":{"$ref":"#/definitions/role"}
+              }
+          }
+      },
+      "profileUpdate":{
+          "type":"object",
+          "properties":{
+            "name":{"type":"string", "description":"Nome do perfil"},
+            "active":{"type":"boolean", "description":"Indica se o perfil está ou não ativo"},
+            "roles":{
+                "type":"array",
+                "description":"A lista de authorities que comporão o perfil",
+                "items":{"type":"string"}
+            }
+          }
+      },
+      "role":{
+          "type":"object",
+          "properties":{
+              "authority":{"type":"string", "description":"Código da permissão"},
+              "name":{"type":"string", "description":"Nome/descrição da permissão"}
+          }
+      },
+      "autorizacao":{
+          "type":"object",
+          "properties":{
+            "uuid":{"type":"string", "description":"Código de identificação do usuário"},
+            "token":{"type":"string", "description":"Token JWT usado na autenticação"},
+            "username":{"type":"string", "description":"Nome do usuário autentciado"},
+            "dateCreated":{"type":"number", "description":"Momento de criação do token no formato timestamp"},
+            "timeToLive":{"type":"number", "description":"Tempo de vida do token"},
+            "roles":{
+                "type":"array",
+                "items":{"type":"string"}
+            }
+          }
+      },
+      "credenciais":{
+          "type":"object",
+          "properties":{
+              "username":{"type":"string", "description":"Nome do usuário"},
+              "password":{"type":"string", "description":"Senha do usuário"}
+          }
+      }
+    }
+  }
