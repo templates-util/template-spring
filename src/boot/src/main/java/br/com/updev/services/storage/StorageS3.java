@@ -4,6 +4,7 @@ import br.com.updev.UtilMetodo;
 import br.com.updev.domain.Arquivo;
 import br.com.updev.domain.ArquivoDownload;
 import br.com.updev.domain.Usuario;
+import br.com.updev.exceptions.NotFoundError;
 import br.com.updev.repositories.ArquivoDownloadRepository;
 import br.com.updev.repositories.ArquivoRepository;
 import br.com.updev.repositories.UsuarioRepository;
@@ -21,8 +22,10 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+import javax.swing.text.html.Option;
 import java.io.*;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -37,6 +40,9 @@ public class StorageS3 implements StorageService, HealthIndicator {
 	private final S3Client s3Client;
 	
 	private static final Logger logger = LoggerFactory.getLogger("StorageS3");
+
+	private static final int TEST_FILE_SIZE = 50;
+	private static final String TEST_USER_EMAIL = "admin@updev.com.br";
 	
 	@Value("${s3.bucket.name}")
 	private String bucket;
@@ -141,6 +147,10 @@ public class StorageS3 implements StorageService, HealthIndicator {
 		return "AWS S3";
 	}
 
+	private Usuario getTestUser() throws NotFoundError {
+		return usuarioRepository.findByEmail(TEST_USER_EMAIL).orElseThrow(() -> new NotFoundError("Usuario não encontrado"));
+	}
+
 	@Override
 	public Health health() {
 
@@ -155,7 +165,13 @@ public class StorageS3 implements StorageService, HealthIndicator {
 		byte[] conteudoTeste = builder.toString().getBytes();
 
 		Arquivo registro;
-		Usuario usuario = usuarioRepository.findByEmail("admin@itexto.com.br");
+
+		Usuario usuario = null;
+		try {
+			usuario = getTestUser();
+		} catch (NotFoundError e) {
+			return Health.down().withDetail("s3.error.write.io", e.getMessage()).build();
+		}
 
 		try (InputStream inputStream = new ByteArrayInputStream(conteudoTeste)) { // aqui nós criamos um InputStream a partir de um array de bytes
 			registro = this.store(nomeArquivoTeste, this.bucket, usuario, inputStream);

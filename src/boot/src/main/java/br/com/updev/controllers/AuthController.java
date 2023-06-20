@@ -15,10 +15,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Controller
 public class AuthController {
 	
+	private final SecurityService securityService;
+
 	@Autowired
-	private SecurityService securityService;
-	
-	
+	public AuthController(SecurityService securityService) {
+		this.securityService = securityService;
+	}
+
+
 	@PostMapping("/api/v1/auth")
 	public ResponseEntity<Autorizacao> autenticar(@RequestBody Credenciais credenciais) {
 		

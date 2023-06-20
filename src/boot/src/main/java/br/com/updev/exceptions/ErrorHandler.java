@@ -73,5 +73,14 @@ public class ErrorHandler {
         return new ResponseEntity<>(erro, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler({UnauthorizedException.class})
+    public ResponseEntity<Erro> handleUnauthorizedException(UnauthorizedException error, WebRequest request) {
+        Erro erro = new Erro();
+        erro.setCode("UNAUTHORIZED");
+        erro.setMessage(error.getMessage());
+        return new ResponseEntity<>(erro, HttpStatus.UNAUTHORIZED);
+    }
+
+
 
 }

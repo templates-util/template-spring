@@ -16,6 +16,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -105,24 +106,27 @@ class PerfilControllerTest {
                 .header("Authorization", auth.getToken())
                 .exchange().expectBody(PerfilResponse.class).returnResult().getResponseBody();
         assertNotNull(result);
-        Perfil registroCriado = perfilRepository.findByUuid(result.getUuid());
-        assertNotNull(registroCriado, "O registro não foi criado");
+        Optional<Perfil> registroCriado = perfilRepository.findByUuid(result.getUuid());
+        assertTrue(registroCriado.isPresent(), "O registro não foi criado");
 
+        Perfil perfil = registroCriado.get();
         dto.getRoles().clear();
         dto.getRoles().add("ROLE_ADMIN");
 
-        testClient.put().uri("/api/v1/profile/" + registroCriado.getUuid())
+        testClient.put().uri("/api/v1/profile/" + perfil.getUuid())
                 .bodyValue(dto)
                 .header("Authorization", auth.getToken())
                 .exchange().expectStatus().isEqualTo(200);
-        Perfil registroEditado = perfilRepository.findByUuid(registroCriado.getUuid());
-        assertNotNull(registroEditado);
-        assertNotNull(registroEditado.getPermissoes());
-        assertEquals(1, registroEditado.getPermissoes().size());
-        boolean presente = registroEditado.getPermissoes().stream().anyMatch(p -> p.getAuthority().equals("ROLE_ADMIN"));
+        Optional<Perfil> registroEditado = perfilRepository.findByUuid(perfil.getUuid());
+
+        assertTrue(registroEditado.isPresent());
+        perfil = registroEditado.get();
+        assertNotNull(perfil.getPermissoes());
+        assertEquals(1, perfil.getPermissoes().size());
+        boolean presente = perfil.getPermissoes().stream().anyMatch(p -> p.getAuthority().equals("ROLE_ADMIN"));
         assertTrue(presente, "Permissão ROLE_ADMIN ausente");
 
-        /**
+        /*
          * Se eu tentar editar um perfil inexistente, tem de retornar 404
          */
         
@@ -153,7 +157,7 @@ class PerfilControllerTest {
                 .expectStatus().isEqualTo(HttpStatus.CREATED)
                 .expectBody(PerfilResponse.class);
 
-        /**
+        /*
          * Segunda vez que cadastro com mesmo perfil e mesmo nome
          */
         testClient.post().uri("/api/v1/profile")
@@ -213,10 +217,10 @@ class PerfilControllerTest {
         assertNotNull(result);
         assertNotNull(result.getUuid(), "Não retornou o UUID do perfil");
 
-        Perfil perfil = perfilRepository.findByUuid(result.getUuid());
-        assertNotNull(perfil, "Registro do perfil não foi encontrado");
+        Optional<Perfil> perfil = perfilRepository.findByUuid(result.getUuid());
+        assertTrue(perfil.isPresent(), "Registro do perfil não foi encontrado");
 
-        assertTrue(perfil.getPermissoes().stream().anyMatch(p -> p.getAuthority().equals("ROLE_PROFILE_CREATE")), "Permissão ROLE_PROFILE_UPDATE não foi incluída");
+        assertTrue(perfil.get().getPermissoes().stream().anyMatch(p -> p.getAuthority().equals("ROLE_PROFILE_CREATE")), "Permissão ROLE_PROFILE_UPDATE não foi incluída");
 
     }
 

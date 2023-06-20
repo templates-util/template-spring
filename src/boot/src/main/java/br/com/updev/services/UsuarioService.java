@@ -36,32 +36,23 @@ public class UsuarioService {
 		this.encoder = encoder;
 		this.entityManager = entityManager;
 	}
-	
+
 	private Perfil getPerfil(UsuarioRequest request) {
-		Perfil perfil = perfilRepository.findByUuid(request.getProfile());
-		if(perfil == null) {
-			throw new ServiceError("Perfil desconhecido");
-		}
-		return perfil;
+		return perfilRepository.findByUuid(request.getProfile())
+				.orElseThrow(() -> new ServiceError("Perfil desconhecido"));
 	}
-	
+
 	private Usuario findByUuid(String uuid) throws NotFoundError {
-		Usuario usuario = usuarioRepository.findByUuid(uuid);
-		if(usuario == null) {
-			throw new NotFoundError("Usuário não encontrado.");
-		}
-		return usuario;
+		return usuarioRepository.findByUuid(uuid)
+				.orElseThrow(() -> new NotFoundError("Usuário não encontrado."));
 	}
 	
 	public Usuario create(UsuarioRequest request) {
 		if(request.getPassword() == null || request.getPassword().isBlank()) {
 			throw new ServiceError("Senha indefinida");
 		}
-		
-		Usuario existente = usuarioRepository.findByEmail(request.getUsername());
-		if(existente != null) {
-			throw new ServiceError("Já existe um usuário cadastrado com este e-mail");
-		}
+
+		findByEmail(request.getUsername());
 		
 		Perfil perfil = getPerfil(request);
 		
@@ -74,15 +65,21 @@ public class UsuarioService {
 		
 		return usuarioRepository.saveAndFlush(novoUsuario);
 	}
+
+	private Usuario findByEmail(String email) {
+		return usuarioRepository.findByEmail(email)
+				.orElseThrow(() -> new ServiceError("Já existe um usuário cadastrado com este e-mail"));
+	}
 	
 	public Usuario update(String uuid, UsuarioRequest request) throws NotFoundError {
 		Usuario registro = findByUuid(uuid);
-		
-		Usuario outroRegistro = usuarioRepository.findByEmail(request.getUsername());
-		if(outroRegistro != null && !outroRegistro.equals(registro)) {
-			throw new ServiceError("Já existe outro usuário cadastrado com este e-mail");
-		}
-		
+
+		usuarioRepository.findByEmailAndUuidNot(request.getUsername(), uuid)
+				.ifPresent(usuario -> {
+					throw new ServiceError("Já existe outro usuário cadastrado com este e-mail");
+				});
+
+
 		Perfil perfil = getPerfil(request);
 		
 		registro.setPerfil(perfil);

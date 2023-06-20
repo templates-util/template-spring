@@ -7,9 +7,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConfigService {
 	
+	private final Environment environment;
+
 	@Autowired
-	private Environment environment;
-	
+	public ConfigService(Environment environment) {
+		this.environment = environment;
+	}
+
 	public String info(String key) {
 		return environment.getProperty(key);
 	}

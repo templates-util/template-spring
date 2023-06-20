@@ -41,11 +41,8 @@ public class PerfilService {
 	private static final Logger logger = LoggerFactory.getLogger("PerfilService");
 	
 	public Perfil findByUuid(String uuid) throws NotFoundError {
-		Perfil result = perfilRepository.findByUuid(uuid);
-		if (result == null) {
-			throw new NotFoundError("Perfil não encontrado: " + uuid);
-		}
-		return result;
+		return perfilRepository.findByUuid(uuid)
+				.orElseThrow(() -> new NotFoundError("Perfil não encontrado " + uuid));
 	}
 	
 	public Perfil update(String uuid, PerfilEdit dto) throws NotFoundError {
