@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -46,8 +47,10 @@ class AuthControllerTest {
         assertNotNull(autorizacao.getToken(), "Não nos retornou um token");
         assertNotNull(autorizacao.getName(), "Não retornou o nome do usuário");
 
-        Usuario usuario = usuarioRepository.findByEmail(autorizacao.getUsername());
-        assertNotNull(usuario, "O registro do usuário não existe no banco de dados");
+        Optional<Usuario> usuarioOptional = usuarioRepository.findByEmail(autorizacao.getUsername());
+        assertTrue(usuarioOptional.isPresent(), "O registro do usuário não existe no banco de dados");
+        Usuario usuario = usuarioOptional.get();
+        assertNotNull(usuarioOptional, "O registro do usuário não existe no banco de dados");
         for (Permissao permissao : usuario.getPerfil().getPermissoes()) {
             boolean presente = autorizacao.getRoles().stream().anyMatch(p -> p.equals(permissao.getAuthority()));
             assertTrue(presente, "A permissão " + permissao.getAuthority() + " não foi encontrada");

@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -54,7 +55,9 @@ class SecurityServiceTest {
             assertTrue(perfilAdmin.getPermissoes().contains(permissao), "Permissão não está no perfil: " + permissao.getAuthority());
         }
 
-        Usuario usuarioAdmin = usuarioRepository.findByEmail("admin@itexto.com.br");
+        Optional<Usuario> usuarioAdminOptional = usuarioRepository.findByEmail("admin@itexto.com.br");
+        assertTrue(usuarioAdminOptional.isPresent(), "Usuário admin não foi encontrado");
+        Usuario usuarioAdmin = usuarioAdminOptional.get();
         assertNotNull(usuarioAdmin, "Usuário admin não foi criado");
         assertNotNull(usuarioAdmin.getHashSenha(), "Não foi definida a senha padrão para o usuário admin");
         assertEquals(perfilAdmin, usuarioAdmin.getPerfil(), "Não foi definido o perfil administrativo para o usuário");
