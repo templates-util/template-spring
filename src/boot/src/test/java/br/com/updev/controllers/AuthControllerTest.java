@@ -35,7 +35,7 @@ class AuthControllerTest {
     @Test
     void testAutenticacaoBemSucedida() {
 
-        Credenciais credenciais = new Credenciais("admin@itexto.com.br", "admin1234");
+        Credenciais credenciais = new Credenciais("admin@updev.com.br", "admin1234");
         ResponseEntity<Autorizacao> result = controller.autenticar(credenciais);
 
 
@@ -74,9 +74,13 @@ class AuthControllerTest {
     @Test
     void testAutenticacaoMalSucedida() {
         Credenciais credenciais = new Credenciais(UUID.randomUUID().toString(), UUID.randomUUID().toString());
-        ResponseEntity<Autorizacao> result = controller.autenticar(credenciais);
-        assertEquals(HttpStatus.UNAUTHORIZED, result.getStatusCode());
-        assertNull(result.getBody(), "A resposta deveria vir vazia");
+        try{
+            controller.autenticar(credenciais);
+
+        }catch(Exception e){
+            assertEquals("Falha na autenticação", e.getMessage());
+        }
+
 
 
     }

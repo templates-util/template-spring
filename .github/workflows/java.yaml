@@ -24,5 +24,13 @@ jobs:
         restore-keys: ${{ runner.os }}-m2
     - name: Run Docker
       run: docker-compose -f src/docker/docker-compose.yml up -d
+    - name: Wait for Docker
+      run: |
+          while ! nc -z localhost 5432 || ! nc -z localhost 6379 || ! nc -z localhost 9444; do
+            echo "Waiting for Docker services..."
+            sleep 5
+          done
     - name: Verify with Maven
       run: mvn -B verify --file src/boot/pom.xml
+    - name: Clean Docker
+      run: docker-compose -f src/docker/docker-compose.yml down

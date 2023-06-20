@@ -52,7 +52,7 @@ public class UsuarioService {
 			throw new ServiceError("Senha indefinida");
 		}
 
-		findByEmail(request.getUsername());
+		findByEmailValidateEmail(request.getUsername());
 		
 		Perfil perfil = getPerfil(request);
 		
@@ -66,9 +66,9 @@ public class UsuarioService {
 		return usuarioRepository.saveAndFlush(novoUsuario);
 	}
 
-	private Usuario findByEmail(String email) {
-		return usuarioRepository.findByEmail(email)
-				.orElseThrow(() -> new ServiceError("Já existe um usuário cadastrado com este e-mail"));
+	private void findByEmailValidateEmail(String email) {
+		usuarioRepository.findByEmail(email)
+				.ifPresent(user -> {throw new  ServiceError("Já existe um usuário cadastrado com este e-mail");});
 	}
 	
 	public Usuario update(String uuid, UsuarioRequest request) throws NotFoundError {

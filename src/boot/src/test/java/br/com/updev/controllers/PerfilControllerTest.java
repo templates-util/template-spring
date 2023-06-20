@@ -42,7 +42,7 @@ class PerfilControllerTest {
 
     @BeforeEach
     void before() {
-        Credenciais credenciais = new Credenciais("admin@itexto.com.br", "admin1234");
+        Credenciais credenciais = new Credenciais("admin@updev.com.br", "admin1234");
 
         this.auth = authController.autenticar(credenciais).getBody();
     }

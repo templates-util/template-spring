@@ -22,6 +22,8 @@ public class UsuarioRequest {
 	private boolean ativo;
 	
 	private String password;
+
+	
 	
 	public UsuarioRequest() {
 		//construtor padrão

@@ -55,7 +55,7 @@ class SecurityServiceTest {
             assertTrue(perfilAdmin.getPermissoes().contains(permissao), "Permissão não está no perfil: " + permissao.getAuthority());
         }
 
-        Optional<Usuario> usuarioAdminOptional = usuarioRepository.findByEmail("admin@itexto.com.br");
+        Optional<Usuario> usuarioAdminOptional = usuarioRepository.findByEmail("admin@updev.com.br");
         assertTrue(usuarioAdminOptional.isPresent(), "Usuário admin não foi encontrado");
         Usuario usuarioAdmin = usuarioAdminOptional.get();
         assertNotNull(usuarioAdmin, "Usuário admin não foi criado");

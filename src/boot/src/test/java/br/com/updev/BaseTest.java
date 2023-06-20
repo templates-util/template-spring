@@ -43,7 +43,7 @@ public abstract class BaseTest {
 	
     protected UsuarioRequest createUsuarioRequest(){
         UsuarioRequest request = new UsuarioRequest();
-        request.setUsername(uuid());
+        request.setUsername("teste" + uuid());
         request.setPassword(uuid());
         request.setNome(uuid());
         request.setProfile(getPerfilAdmin().getUuid());
@@ -88,7 +88,7 @@ public abstract class BaseTest {
     }
 
 	protected Autorizacao authAdmin() {
-		return this.autenticar("admin@itexto.com.br", "admin1234");
+		return this.autenticar("admin@updev.com.br", "admin1234");
 	}
 
 	protected Autorizacao autenticar(String usuario, String senha) {
