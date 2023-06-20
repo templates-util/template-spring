@@ -1,0 +1,28 @@
+name: Java CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 20
+      uses: actions/setup-java@v2
+      with:
+        java-version: '20'
+        distribution: 'adopt'
+    - name: Cache Maven packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+    - name: Run Docker
+      run: docker-compose -f src/docker/docker-compose.yml up -d
+    - name: Verify with Maven
+      run: mvn -B verify --file src/boot/pom.xml
