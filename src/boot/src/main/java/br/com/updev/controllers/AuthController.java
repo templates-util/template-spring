@@ -2,7 +2,9 @@ package br.com.updev.controllers;
 
 import br.com.updev.dto.Autorizacao;
 import br.com.updev.dto.Credenciais;
+import br.com.updev.dto.UsuarioRegister;
 import br.com.updev.services.SecurityService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,5 +41,11 @@ public class AuthController {
 	public ResponseEntity<String> testeAcesso() {
 		return new ResponseEntity<>("Ok", HttpStatus.OK);
 	}
+
+	@PostMapping("/api/v1/register")
+	public ResponseEntity<Void> cadastrarUsuario(@RequestBody @Valid UsuarioRegister usuarioRegister) {
+		securityService.cadastrarUsuario(usuarioRegister);
+		return new ResponseEntity<>(HttpStatus.CREATED);
+    }
 
 }

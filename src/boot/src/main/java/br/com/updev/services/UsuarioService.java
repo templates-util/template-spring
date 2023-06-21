@@ -66,7 +66,7 @@ public class UsuarioService {
 		return usuarioRepository.saveAndFlush(novoUsuario);
 	}
 
-	private void findByEmailValidateEmail(String email) {
+	public void findByEmailValidateEmail(String email) {
 		usuarioRepository.findByEmail(email)
 				.ifPresent(user -> {throw new  ServiceError("Já existe um usuário cadastrado com este e-mail");});
 	}

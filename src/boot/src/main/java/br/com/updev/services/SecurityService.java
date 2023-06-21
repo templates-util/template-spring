@@ -6,6 +6,7 @@ import br.com.updev.domain.Permissao;
 import br.com.updev.domain.Usuario;
 import br.com.updev.dto.Autorizacao;
 import br.com.updev.dto.Credenciais;
+import br.com.updev.dto.UsuarioRegister;
 import br.com.updev.exceptions.ServiceError;
 import br.com.updev.exceptions.UnauthorizedException;
 import br.com.updev.repositories.AuthLogRepository;
@@ -45,15 +46,17 @@ public class SecurityService {
 	private final AuthLogRepository logRepository;
 
 	private final JwtService jwtService;
-	
+
+	private final UsuarioService usuarioService;
 	
 	private static final Logger logger = LoggerFactory.getLogger("SecurityService");
 
 	private static final String ADMINISTRADOR = "Administrador";
 
+	private static final String USUARIO = "Usuario";
 
 	@Autowired
-	public SecurityService(PermissaoRepository permissaoRepository, PerfilRepository perfilRepository, UsuarioRepository usuarioRepository, PasswordEncoder encoder, ConfigService configService, AuthLogRepository logRepository, JwtService jwtService) {
+	public SecurityService(PermissaoRepository permissaoRepository, PerfilRepository perfilRepository, UsuarioRepository usuarioRepository, PasswordEncoder encoder, ConfigService configService, AuthLogRepository logRepository, JwtService jwtService, UsuarioService usuarioService) {
 		this.permissaoRepository = permissaoRepository;
 		this.perfilRepository = perfilRepository;
 		this.usuarioRepository = usuarioRepository;
@@ -61,6 +64,7 @@ public class SecurityService {
 		this.configService = configService;
 		this.logRepository = logRepository;
 		this.jwtService = jwtService;
+		this.usuarioService = usuarioService;
 	}
 
 
@@ -99,7 +103,7 @@ public class SecurityService {
 					resultado.setToken(this.criarToken(usuario, agora.getTime()));
 					resultado.setTimeToLive(Long.parseLong(this.configService.info("jwt.ttl")));
 					resultado.setUsername(usuario.getEmail());
-					resultado.setRoles(usuario.getPerfil().getPermissoes().stream().map(Permissao::getAuthority).collect(Collectors.toList()));
+					resultado.setRoles(usuario.getPerfil().getPermissoes().stream().map(Permissao::getAuthority).toList());
 
 					AuthLog log = new AuthLog();
 					log.setUsuario(usuario);
@@ -159,6 +163,21 @@ public class SecurityService {
 			List<Permissao> permissoes = permissaoRepository.findAll();
 			perfil.getPermissoes().addAll(permissoes);
 			perfilRepository.save(perfil);
+		}else{
+			perfil.setPermissoes(new HashSet<>());
+			List<Permissao> permissoes = permissaoRepository.findAll();
+			perfil.getPermissoes().addAll(permissoes);
+			perfilRepository.save(perfil);
+		}
+
+		perfil = perfilRepository.findByNome(USUARIO);
+		if (perfil == null) {
+			perfil = new Perfil();
+			perfil.setNome(USUARIO);
+			perfil.setPermissoes(new HashSet<>());
+			perfil.setAtivo(true);
+			perfil.getPermissoes().add(permissaoRepository.findByAuthority("ROLE_USER"));
+			perfilRepository.save(perfil);
 		}
 		
 		Optional<Usuario> admin = usuarioRepository.findByEmail("admin@updev.com.br");
@@ -175,4 +194,14 @@ public class SecurityService {
 		
 	}
 
+	public void cadastrarUsuario(UsuarioRegister usuarioRegister) {
+		Objects.requireNonNull(usuarioRegister, "O usuário não pode ser nulo");
+        Objects.requireNonNull(usuarioRegister.getNome(), "O nome do usuário não pode ser nulo");
+        Objects.requireNonNull(usuarioRegister.getUsername(), "O email do usuário não pode ser nulo");
+        Objects.requireNonNull(usuarioRegister.getSenha(), "A senha do usuário não pode ser nula");
+
+        usuarioService.findByEmailValidateEmail(usuarioRegister.getUsername());
+
+		usuarioRepository.save(new Usuario(usuarioRegister, this.hashSenha(usuarioRegister.getSenha()), perfilRepository.findByNome(USUARIO)));
+	}
 }

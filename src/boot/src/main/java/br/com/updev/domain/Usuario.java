@@ -1,5 +1,6 @@
 package br.com.updev.domain;
 
+import br.com.updev.dto.UsuarioRegister;
 import jakarta.persistence.*;
 import org.hibernate.envers.Audited;
 
@@ -21,6 +22,19 @@ public class Usuario extends BaseDomain {
 	
 	@ManyToOne @JoinColumn(name="perfil_id", nullable=false)
 	private Perfil perfil;
+
+	public Usuario(UsuarioRegister usuarioRegister, String senha, Perfil perfil) {
+		super();
+		this.nome = usuarioRegister.getNome();
+		this.email = usuarioRegister.getUsername();
+		this.ativo = true;
+		this.hashSenha = senha;
+		this.perfil = perfil;
+	}
+
+	public Usuario() {
+		// Construtor padrão
+	}
 
 	public String getNome() {
 		return nome;
