@@ -52,7 +52,7 @@ class PerfilControllerTest {
         List<Permissao> permissoes = permissaoRepository.findAll();
 
         List<PermissaoResponse> result = testClient.get().uri("/api/v1/roles")
-                .header("Authorization", this.auth.getToken())
+                .header("Authorization", String.format("Bearer %s", auth.getToken()))
                 .exchange().expectBodyList(PermissaoResponse.class).returnResult().getResponseBody();
 
         assertNotNull(result);
@@ -70,7 +70,7 @@ class PerfilControllerTest {
         assertNotNull(perfil, "Sem perfil para testar");
 
         PerfilResponse result = testClient.get().uri("/api/v1/profile/" + perfil.getUuid())
-                .header("Authorization", this.auth.getToken())
+                .header("Authorization", String.format("Bearer %s", auth.getToken()))
                 .exchange().expectBody(PerfilResponse.class).returnResult().getResponseBody();
         assertNotNull(result, "Não nos retornou o resultado");
         assertEquals(perfil.getUuid(), result.getUuid(), "UUID retornado é diferente");
@@ -87,7 +87,7 @@ class PerfilControllerTest {
          * Se o perfil não existe, tem de me retornar um 404
          */
         testClient.get().uri("/api/v1/profile/28282728")
-                .header("Authorization", auth.getToken())
+                .header("Authorization", String.format("Bearer %s", auth.getToken()))
                 .exchange()
                 .expectStatus().isEqualTo(404);
     }
@@ -103,7 +103,7 @@ class PerfilControllerTest {
 
         PerfilResponse result = testClient.post().uri("/api/v1/profile")
                 .bodyValue(dto)
-                .header("Authorization", auth.getToken())
+                .header("Authorization",String.format("Bearer %s", auth.getToken()))
                 .exchange().expectBody(PerfilResponse.class).returnResult().getResponseBody();
         assertNotNull(result);
         Optional<Perfil> registroCriado = perfilRepository.findByUuid(result.getUuid());
@@ -115,7 +115,7 @@ class PerfilControllerTest {
 
         testClient.put().uri("/api/v1/profile/" + perfil.getUuid())
                 .bodyValue(dto)
-                .header("Authorization", auth.getToken())
+                .header("Authorization",String.format("Bearer %s", auth.getToken()))
                 .exchange().expectStatus().isEqualTo(200);
         Optional<Perfil> registroEditado = perfilRepository.findByUuid(perfil.getUuid());
 
@@ -132,7 +132,7 @@ class PerfilControllerTest {
         
         this.testClient.put().uri("/api/v1/profile/38237237")
                 .bodyValue(dto)
-                .header("Authorization", auth.getToken())
+                .header("Authorization", String.format("Bearer %s", auth.getToken()))
                 .exchange().expectStatus().isEqualTo(404);
 
     }
@@ -152,7 +152,7 @@ class PerfilControllerTest {
 
         testClient.post().uri("/api/v1/profile")
                 .bodyValue(dto)
-                .header("Authorization", auth.getToken())
+                .header("Authorization", String.format("Bearer %s", auth.getToken()))
                 .exchange()
                 .expectStatus().isEqualTo(HttpStatus.CREATED)
                 .expectBody(PerfilResponse.class);
@@ -162,7 +162,7 @@ class PerfilControllerTest {
          */
         testClient.post().uri("/api/v1/profile")
                 .bodyValue(dto)
-                .header("Authorization", auth.getToken())
+                .header("Authorization", String.format("Bearer %s", auth.getToken()))
                 .exchange().expectStatus().isBadRequest();
     }
 
@@ -178,7 +178,7 @@ class PerfilControllerTest {
 
         testClient.post().uri("/api/v1/profile")
                 .bodyValue(dto)
-                .header("Authorization", this.auth.getToken())
+                .header("Authorization", String.format("Bearer %s", auth.getToken()))
                 .exchange()
                 .expectStatus().isEqualTo(400);
     }
@@ -196,7 +196,7 @@ class PerfilControllerTest {
 
         testClient.post().uri("/api/v1/profile")
                 .bodyValue(dto)
-                .header("Authorization", this.auth.getToken())
+                .header("Authorization", String.format("Bearer %s", auth.getToken()))
                 .exchange()
                 .expectStatus().isEqualTo(400);
     }
@@ -212,7 +212,7 @@ class PerfilControllerTest {
 
         PerfilResponse result = testClient.post().uri("/api/v1/profile")
                 .bodyValue(dto)
-                .header("Authorization", auth.getToken())
+                .header("Authorization",String.format("Bearer %s", auth.getToken()))
                 .exchange().expectBody(PerfilResponse.class).returnResult().getResponseBody();
         assertNotNull(result);
         assertNotNull(result.getUuid(), "Não retornou o UUID do perfil");
@@ -227,7 +227,7 @@ class PerfilControllerTest {
     @Test
     void testList() {
         List<PerfilResponse> resposta = testClient.get().uri("/api/v1/profile")
-                .header("Authorization", auth.getToken())
+                .header("Authorization",String.format("Bearer %s", auth.getToken()) )
                 .exchange().expectBodyList(PerfilResponse.class).returnResult().getResponseBody();
 
         assertNotNull(resposta, "Retornou uma resposta nula");

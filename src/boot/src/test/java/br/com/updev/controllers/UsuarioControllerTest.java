@@ -60,14 +60,14 @@ class UsuarioControllerTest extends BaseTest {
 
 
         this.httpClient.post().uri("/api/v1/user")
-                .header("Authorization", this.authAdmin().getToken())
+                .header("Authorization", String.format("Bearer %s", authAdmin().getToken()))
                 .bodyValue(request)
                 .exchange()
                 .expectStatus().isCreated();
 
         // agora vamos tentar novamente criar outro usuario com o mesmo request
         Erro erro = this.httpClient.post().uri("/api/v1/user")
-                .header("Authorization", this.authAdmin().getToken())
+                .header("Authorization",String.format("Bearer %s", authAdmin().getToken()))
                 .bodyValue(request)
                 .exchange()
                 .expectStatus().isBadRequest()
@@ -88,7 +88,7 @@ class UsuarioControllerTest extends BaseTest {
         UsuarioRequest request = createUsuarioRequest();
 
         UsuarioDTO result = this.httpClient.post().uri("/api/v1/user")
-                .header("Authorization", this.authAdmin().getToken())
+                .header("Authorization", String.format("Bearer %s", authAdmin().getToken()))
                 .bodyValue(request)
                 .exchange()
                 .expectStatus().isEqualTo(201)
@@ -121,7 +121,7 @@ class UsuarioControllerTest extends BaseTest {
         request.setProfile(uuid());
 
         Erro erro = this.httpClient.post().uri("/api/v1/user")
-                .header("Authorization", this.authAdmin().getToken())
+                .header("Authorization", String.format("Bearer %s", authAdmin().getToken()))
                 .bodyValue(request)
                 .exchange()
                 .expectStatus().isBadRequest()
@@ -171,7 +171,7 @@ class UsuarioControllerTest extends BaseTest {
 
     private void badRequestCreated(UsuarioRequest request) {
         this.httpClient.post().uri("/api/v1/user")
-                .header("Authorization", this.authAdmin().getToken())
+                .header("Authorization", String.format("Bearer %s", authAdmin().getToken()))
                 .bodyValue(request)
                 .exchange()
                 .expectStatus().isBadRequest()
@@ -215,7 +215,7 @@ class UsuarioControllerTest extends BaseTest {
         UsuarioRequest dto = createUsuarioRequest();
 
         Erro erro = this.httpClient.put().uri("/api/v1/user/" + uuid())
-                .header("Authorization", authAdmin().getToken())
+                .header("Authorization", String.format("Bearer %s", authAdmin().getToken()))
                 .bodyValue(dto)
                 .exchange()
                 .expectStatus().isNotFound()
@@ -237,7 +237,7 @@ class UsuarioControllerTest extends BaseTest {
         UsuarioRequest dto = createUsuarioRequest();
 
         UsuarioDTO result = this.httpClient.put().uri("/api/v1/user/" + original.getUuid())
-                .header("Authorization", this.authAdmin().getToken())
+                .header("Authorization", String.format("Bearer %s", authAdmin().getToken()))
                 .bodyValue(dto)
                 .exchange()
                 .expectStatus().isOk()
@@ -261,7 +261,7 @@ class UsuarioControllerTest extends BaseTest {
         UsuarioRequest dto = createUsuarioRequest();
         dto.setUsername(email);
         Erro erro = this.httpClient.put().uri("/api/v1/user/" + usuarioASerEditado.getUuid())
-                .header("Authorization", authAdmin().getToken())
+                .header("Authorization", String.format("Bearer %s", authAdmin().getToken()))
                 .bodyValue(dto)
                 .exchange()
                 .expectStatus().isBadRequest()
@@ -307,7 +307,7 @@ class UsuarioControllerTest extends BaseTest {
         UsuarioDTO original = this.criarUsuario(getPerfilAdmin(), uuid() + "@teste.com", uuid());
 
         this.httpClient.put().uri("/api/v1/user/" + original.getUuid())
-                .header("Authorization", this.authAdmin().getToken())
+                .header("Authorization", String.format("Bearer %s", authAdmin().getToken()))
                 .bodyValue(request)
                 .exchange()
                 .expectStatus().isBadRequest();
@@ -325,7 +325,7 @@ class UsuarioControllerTest extends BaseTest {
         gerarVariosUsuarios(Objects.requireNonNull(rand()).nextInt(10) + 50);
 
         List<UsuarioDTO> result = this.httpClient.get().uri("/api/v1/user")
-                .header("Authorization", authAdmin.getToken())
+                .header("Authorization", String.format("Bearer %s", authAdmin().getToken()))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBodyList(UsuarioDTO.class)
@@ -370,7 +370,7 @@ class UsuarioControllerTest extends BaseTest {
         gerarVariosUsuarios(Objects.requireNonNull(rand()).nextInt(10) + 5);
 
         List<UsuarioDTO> result = this.httpClient.get().uri("/api/v1/user?pageSize=5")
-                .header("Authorization", authAdmin.getToken())
+                .header("Authorization", String.format("Bearer %s", authAdmin().getToken()))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBodyList(UsuarioDTO.class)
@@ -394,7 +394,7 @@ class UsuarioControllerTest extends BaseTest {
         UsuarioDTO original = this.criarUsuario(getPerfilAdmin(), uuid() + "@teste.com", uuid());
 
         List<UsuarioDTO> result = this.httpClient.get().uri("/api/v1/user?nome=" + original.getNome())
-                .header("Authorization", authAdmin.getToken())
+                .header("Authorization", String.format("Bearer %s", authAdmin().getToken()))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBodyList(UsuarioDTO.class)
@@ -418,7 +418,7 @@ class UsuarioControllerTest extends BaseTest {
         UsuarioDTO original = this.criarUsuario(getPerfilAdmin(), uuid() + "@teste.com", uuid());
 
         List<UsuarioDTO> result = this.httpClient.get().uri("/api/v1/user?email=" + original.getUsername())
-                .header("Authorization", authAdmin.getToken())
+                .header("Authorization", String.format("Bearer %s", authAdmin().getToken()))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBodyList(UsuarioDTO.class)

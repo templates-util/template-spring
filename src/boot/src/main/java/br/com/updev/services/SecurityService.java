@@ -13,6 +13,7 @@ import br.com.updev.repositories.AuthLogRepository;
 import br.com.updev.repositories.PerfilRepository;
 import br.com.updev.repositories.PermissaoRepository;
 import br.com.updev.repositories.UsuarioRepository;
+import br.com.updev.security.ApiKeyAuthentication;
 import br.com.updev.security.JWTAuthentication;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.security.Keys;
@@ -20,6 +21,7 @@ import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -55,6 +57,9 @@ public class SecurityService {
 
 	private static final String USUARIO = "Usuario";
 
+	@Value("${app.apikey}")
+	private String apikey;
+
 	@Autowired
 	public SecurityService(PermissaoRepository permissaoRepository, PerfilRepository perfilRepository, UsuarioRepository usuarioRepository, PasswordEncoder encoder, ConfigService configService, AuthLogRepository logRepository, JwtService jwtService, UsuarioService usuarioService) {
 		this.permissaoRepository = permissaoRepository;
@@ -87,6 +92,16 @@ public class SecurityService {
 		}
 		
 		return null;
+	}
+
+
+
+	public ApiKeyAuthentication authenticateApiKey(String apiKey) {
+		if (apiKey != null && apiKey.equals(this.apikey)) {
+			return new ApiKeyAuthentication(null, null);
+		} else {
+			return null;
+		}
 	}
 
 
@@ -170,14 +185,14 @@ public class SecurityService {
 			perfilRepository.save(perfil);
 		}
 
-		perfil = perfilRepository.findByNome(USUARIO);
-		if (perfil == null) {
-			perfil = new Perfil();
-			perfil.setNome(USUARIO);
-			perfil.setPermissoes(new HashSet<>());
-			perfil.setAtivo(true);
-			perfil.getPermissoes().add(permissaoRepository.findByAuthority("ROLE_USER"));
-			perfilRepository.save(perfil);
+		Perfil perfilUser = perfilRepository.findByNome(USUARIO);
+		if (perfilUser == null) {
+			perfilUser = new Perfil();
+			perfilUser.setNome(USUARIO);
+			perfilUser.setPermissoes(new HashSet<>());
+			perfilUser.setAtivo(true);
+			perfilUser.getPermissoes().add(permissaoRepository.findByAuthority("ROLE_USER"));
+			perfilRepository.save(perfilUser);
 		}
 		
 		Optional<Usuario> admin = usuarioRepository.findByEmail("admin@updev.com.br");

@@ -19,7 +19,7 @@ import java.io.IOException;
 public class JWTFilter extends GenericFilterBean implements ApplicationContextAware {
 
 	private static final String TOKEN = "Authorization";
-
+	private static final String API_KEY_HEADER = "x-api-key";
 	private ApplicationContext applicationContext;
 	
 	private SecurityService getSecurityService() {
@@ -30,14 +30,25 @@ public class JWTFilter extends GenericFilterBean implements ApplicationContextAw
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 		
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
-		String token = httpRequest.getHeader(TOKEN);
-		if (token != null) {
+		String authHeader = httpRequest.getHeader(TOKEN);
+		String apiKey = httpRequest.getHeader(API_KEY_HEADER);
+
+		if (authHeader != null && authHeader.startsWith("Bearer ")) {
+			String token = authHeader.substring(7);
 			JWTAuthentication auth = getSecurityService().parseToken(token);
+
 			if (auth != null && auth.isAuthenticated()) {
 				SecurityContextHolder.getContext().setAuthentication(auth);
 			}
 		}
-		
+//		else if (apiKey != null) {
+//			ApiKeyAuthentication auth = getSecurityService().authenticateApiKey(apiKey);
+//			if (auth != null) {
+//				SecurityContextHolder.getContext().setAuthentication(auth);
+//			}
+//		}
+
+
 		chain.doFilter(request, response);
 	}
 

@@ -56,8 +56,6 @@ public class Integracoes {
 							S3Configuration.builder().chunkedEncodingEnabled(false).build()	
 							)
 						.build();
-			
-			
 		}
 	}
 	

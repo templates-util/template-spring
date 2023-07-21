@@ -64,7 +64,7 @@ class AuthControllerTest extends BaseTest {
          * Se a autenticação está correta, consigo acessar um endpoint de teste
          */
         this.testClient.get().uri("/api/v1/test")
-                .header("Authorization", autorizacao.getToken())
+                .header("Authorization",String.format("Bearer %s", autorizacao.getToken()))
                 .exchange().expectStatus().isOk();
         /*
          * Se fornecemos um token inválido, não devo conseguir acessar este conteúdo

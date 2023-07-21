@@ -63,7 +63,7 @@ public abstract class BaseTest {
         Autorizacao authAdmin = this.authAdmin();
 
         return this.httpClient.post().uri("/api/v1/user")
-                .header("Authorization", authAdmin.getToken())
+                .header("Authorization", String.format("Bearer %s", authAdmin().getToken()))
                 .bodyValue(request)
                 .exchange()
                 .expectStatus().isEqualTo(201)
