@@ -63,6 +63,21 @@ public class UsuarioController {
 		return new ResponseEntity<>(new UsuarioDTO(usuarioService.update(uuid, request)), HttpStatus.OK);
 	}
 
+	@Operation(summary = "Retorna os dados de um usuário",
+			responses = {
+					@ApiResponse(responseCode = "200", description = "Operação bem-sucedida",
+							content = @Content( schema = @Schema(implementation = UsuarioDTO.class))),
+					@ApiResponse(responseCode = "400", description = "Parâmetros inválidos",
+							content = @Content(schema = @Schema(implementation = Erro.class))),
+					@ApiResponse(responseCode = "500", description = "Erro interno do servidor",
+							content = @Content(schema = @Schema(implementation = Erro.class)))
+			})
+	@GetMapping()
+	public ResponseEntity<UsuarioDTO> getOne(@PathVariable("uuid") String uuid) throws NotFoundError {
+		return new ResponseEntity<>(new UsuarioDTO(usuarioService.findByUuid(uuid)), HttpStatus.OK);
+	}
+
+
 	@Operation(summary = "Obtém uma lista de todos os usuários",
 			responses = {
 					@ApiResponse(responseCode = "200", description = "Operação bem-sucedida",

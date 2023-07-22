@@ -42,7 +42,7 @@ public class UsuarioService {
 				.orElseThrow(() -> new ServiceError("Perfil desconhecido"));
 	}
 
-	private Usuario findByUuid(String uuid) throws NotFoundError {
+	public Usuario findByUuid(String uuid) throws NotFoundError {
 		return usuarioRepository.findByUuid(uuid)
 				.orElseThrow(() -> new NotFoundError("Usuário não encontrado."));
 	}
